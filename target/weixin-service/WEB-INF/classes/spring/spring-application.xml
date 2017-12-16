@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans    
+                        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd    
+                        http://www.springframework.org/schema/context    
+                        http://www.springframework.org/schema/context/spring-context-4.0.xsd    
+                        http://www.springframework.org/schema/mvc    
+                        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+                        http://www.springframework.org/schema/tx  
+						http://www.springframework.org/schema/tx/spring-tx-4.0.xsd  
+						http://www.springframework.org/schema/aop  
+						http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
+						http://www.springframework.org/schema/task  
+						http://www.springframework.org/schema/task/spring-task-4.0.xsd
+						">
+
+	<!-- 自动扫描 -->
+	<context:component-scan base-package="com.yimai.**" />
+	
+	<!--开启注解处理器 -->
+	<context:annotation-config />
+	<task:scheduler id="qbScheduler" pool-size="10" />
+	<!-- 开启这个配置，spring才能识别@Scheduled注解 -->
+	<task:annotation-driven scheduler="qbScheduler" mode="proxy" />
+	
+	<bean name="applicationContextFactoryUtil" class="com.yimai.core.util.ApplicationContextFactoryUtil" scope="singleton"></bean>
+	
+	<!-- 在这里加载全部 properties 文件 -->
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		 <property name="locations">
+		 	<list>
+		 		<value>classpath:jdbc.properties</value>
+		 	</list>
+		 </property>
+	</bean>
+
+	<!-- 数据源 -->
+	<!-- <import resource="spring-dataSource.xml" /> -->
+
+</beans>

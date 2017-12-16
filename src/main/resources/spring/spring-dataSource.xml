@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans    
+                        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd    
+                        http://www.springframework.org/schema/context    
+                        http://www.springframework.org/schema/context/spring-context-3.1.xsd    
+                        http://www.springframework.org/schema/mvc    
+                        http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd
+                        http://www.springframework.org/schema/tx  
+						http://www.springframework.org/schema/tx/spring-tx-4.0.xsd  
+						http://www.springframework.org/schema/aop  
+						http://www.springframework.org/schema/aop/spring-aop-4.0.xsd  
+						http://www.springframework.org/schema/task  
+						http://www.springframework.org/schema/task/spring-task-4.0.xsd
+						">
+	
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close" lazy-init="false">
+		<property name="url" value="${db.baseapi.url}" />
+		<property name="username" value="${db.baseapi.username}" />
+		<property name="password" value="${db.baseapi.password}" />
+		<property name="driverClassName" value="${db.baseapi.driver}" />
+		<property name="maxActive" value="${db.baseapi.maxActive}" />
+		<property name="minIdle" value="${db.baseapi.minIdle}" />
+		<property name="initialSize" value="${db.baseapi.initialSize}" />
+		<property name="maxWait" value="${db.baseapi.maxWait}" />
+		<property name="validationQuery" value="SELECT 'x' FROM DUAL" />
+		<property name="filters" value="stat,log4j" />
+		<property name="proxyFilters">
+			<list>
+				<ref bean="stat-filter" />
+                <!-- <ref bean="logFilter" /> -->
+			</list>
+		</property>
+	</bean>
+
+	<bean id="stat-filter" class="com.alibaba.druid.filter.stat.StatFilter">
+		<property name="slowSqlMillis" value="10000" />
+		<property name="logSlowSql" value="true" />
+	</bean>
+	
+	<bean id="logFilter" class="com.alibaba.druid.filter.logging.Log4jFilter">
+        <!-- <property name="resultSetLogEnabled" value="false" /> -->
+        <!-- <property name="statementExecutableSqlLogEnable" value="true" /> -->
+    </bean>
+	
+	<!-- spring和MyBatis完美整合，不需要mybatis的配置映射文件 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:mybatis/mybatis-config.xml" />
+		<!-- 自动扫描mapping.xml文件 -->
+		<property name="mapperLocations" value="classpath:com/yimai/dao/mapping/*.xml"></property>
+	</bean>
+
+	<!-- DAO接口所在包名，Spring会自动查找其下的类 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage" value="com.yimai.dao" />
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+	</bean>
+
+	<!-- (事务管理)transaction manager, use JtaTransactionManager for global tx -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<tx:advice id="trAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+	        <tx:method name="*"/>    
+			<tx:method name="get*" propagation="REQUIRED" read-only="true"/>
+			<tx:method name="query*" propagation="REQUIRED" read-only="true"/>
+			<tx:method name="search*" propagation="REQUIRED" read-only="true"/>
+			<tx:method name="find*" propagation="REQUIRED" read-only="true"/>
+			<tx:method name="save*" propagation="REQUIRED" />
+			<tx:method name="update*" propagation="REQUIRED" />
+			<tx:method name="delete*" propagation="REQUIRED" />
+	      	<!-- 其他方法以默认事务进行 -->   
+      	</tx:attributes>
+	</tx:advice>
+
+	<aop:config>
+		<aop:pointcut expression="execution(* com.yimai.service.impl..*.*(..))" id="trPointcut" />
+		<aop:advisor advice-ref="trAdvice" pointcut-ref="trPointcut" />
+	</aop:config>
+	
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+		<constructor-arg ref="dataSource" />
+	</bean>
+
+</beans>
