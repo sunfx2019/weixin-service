@@ -12,11 +12,17 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONArray;
+import com.yimai.bean.AccessToken;
+import com.yimai.bean.Button;
+import com.yimai.bean.ComplexButton;
+import com.yimai.bean.Menu;
+import com.yimai.bean.ViewButton;
 import com.yimai.bean.weixin.message.resp.Article;
 import com.yimai.bean.weixin.message.resp.NewsMessage;
 import com.yimai.bean.weixin.message.resp.TextMessage;
 import com.yimai.core.util.MessageType;
 import com.yimai.core.util.MessageUtil;
+import com.yimai.core.util.WeixinUtil;
 import com.yimai.service.IJuanDecorateWeiXinService;
 
 /**
@@ -56,7 +62,7 @@ public class IJuanDecorateWeiXinServiceImpl implements IJuanDecorateWeiXinServic
 			respMessage = this.getDefaultTextMessage(fromUserName, toUserName);
 
 			// event事件
-			if (msgType.equals(MessageType.REQ_MESSAGE_TYPE_EVENT)) { 
+			if (msgType.equals(MessageType.REQ_MESSAGE_TYPE_EVENT)) {
                 // 事件类型  
                 String eventType = requestMap.get("Event"); 
                 // 点击关注
@@ -71,7 +77,14 @@ public class IJuanDecorateWeiXinServiceImpl implements IJuanDecorateWeiXinServic
                 } 
                 // 点击事件
                 else if (eventType.equals(MessageType.EVENT_TYPE_CLICK)) {  
-                    
+                	// 事件KEY值，与创建自定义菜单时指定的KEY值对应  
+                    String eventKey = requestMap.get("EventKey");
+                    log4j.info("eventKey:" + eventKey);
+                    if (eventKey.equals("11")) {  
+                        //respContent = "天气预报菜单项被点击！";
+                    } else if (eventKey.equals("12")) {  
+                        //respContent = "公交查询菜单项被点击！";
+                    }  
                 }
             }  
 
@@ -237,37 +250,43 @@ public class IJuanDecorateWeiXinServiceImpl implements IJuanDecorateWeiXinServic
 		newsMessage.setFuncFlag(0);
 		List<Article> articleList = new ArrayList<Article>();
 		Article article = new Article();
-		article.setTitle("O(∩_∩)O亲爱的用户，欢迎访问居安整装！");
-		article.setDescription("	居安装饰是集室内设计及施工于一体的现代家装企业。公司现有员工近100人，设市场部、设计部、工程部、主材管理部、工程监理部、客服售后部、财务部。其中设计部汇聚业内知名设计师多位，工程部大多由技艺精湛的南方技工结成，客服售后部专业细致的服务让您的家装全程无忧。");
+		article.setTitle("O(∩_∩)O亲爱的用户，欢迎访问居安建材！");
+		//article.setDescription("	居安装饰是集室内设计及施工于一体的现代家装企业。公司现有员工近100人，设市场部、设计部、工程部、主材管理部、工程监理部、客服售后部、财务部。其中设计部汇聚业内知名设计师多位，工程部大多由技艺精湛的南方技工结成，客服售后部专业细致的服务让您的家装全程无忧。");
 		article.setPicUrl("http://www.yimaisc.com/public/images/0a/6c/b4/513fdc7ed7bdb877754d5d00d844bee67e669dfc.jpg");
-		article.setUrl("https://mp.weixin.qq.com/s/efe-k0gXh65lSo48bKtjjw");
+		article.setUrl("http://www.yimaisc.com/");
 		
 		Article article1 = new Article();
-		article1.setTitle("慈善活动");
+		article1.setTitle("爱心活动");
 		article1.setDescription("");
 		article1.setPicUrl("http://wx.yimaisc.com:8042/yimaiwx/Public/img/1.jpg");
 		article1.setUrl("http://wx.yimaisc.com:8042/yimaiwx/Activity/index.html");
 		Article article2 = new Article();
-		article2.setTitle("楼盘信息");
+		article2.setTitle("家装设计师");
 		article2.setDescription("");
-		article2.setPicUrl("http://wx.yimaisc.com:8042/yimaiwx/Public/img/quarters-img.jpg");
-		article2.setUrl("http://wx.yimaisc.com:8042/yimaiwx/Design/index.html");
+		article2.setPicUrl("http://wx.yimaisc.com:8042/yimaiwx/Public/img/designer-img-big.jpg");
+		article2.setUrl("http://wx.yimaisc.com:8042/yimaiwx/Designer/index.html");
 		Article article3 = new Article();
-		article3.setTitle("设计师");
+		article3.setTitle("君墅湾效果图");
 		article3.setDescription("");
-		article3.setPicUrl("http://wx.yimaisc.com:8042/yimaiwx/Public/img/designer-img-big.jpg");
-		article3.setUrl("http://wx.yimaisc.com:8042/yimaiwx/Designer/index.html");
+		article3.setPicUrl("http://wx.yimaisc.com:8042/yimaiwx/Public/img/quarters-img.jpg");
+		article3.setUrl("http://wx.yimaisc.com:8042/yimaiwx/Design/index.html");
 		Article article4 = new Article();
-		article4.setTitle("施工图");
+		article4.setTitle("易买建材");
 		article4.setDescription("");
-		article4.setPicUrl("http://wx.yimaisc.com:8042/yimaiwx/Public/img/quarters-img.jpg");
-		article4.setUrl("http://wx.yimaisc.com:8042/yimaiwx/Construction/index.html");
+		article4.setPicUrl("http://www.yimaisc.com/public/images/1e/17/6a/cb63d7ab4b9359319c6b7857c9ddbbeb3852c5bc.jpg");
+		article4.setUrl("http://www.yimaisc.com/");
+		Article article5 = new Article();
+		article5.setTitle("Hello易买");
+		article5.setDescription("");
+		article5.setPicUrl("http://www.yimaisc.com/public/images/be/e9/01/2aed38d8fd24f73832d94e89337a730296a857ec.jpg");
+		article5.setUrl("http://www.yimaisc.com/");
 		
 		articleList.add(article);
 		articleList.add(article1);
 		articleList.add(article2);
 		articleList.add(article3);
 		articleList.add(article4);
+		articleList.add(article5);
 		
 		// 设置图文消息个数
 		newsMessage.setArticleCount(articleList.size());
@@ -286,4 +305,91 @@ public class IJuanDecorateWeiXinServiceImpl implements IJuanDecorateWeiXinServic
 	public String emoji(int hexEmoji) {
 		return String.valueOf(Character.toChars(hexEmoji));
 	}
+	
+	/**
+	 * 初始化公众号菜单
+	 */
+	 public boolean initMenu(String appId, String appSecret) {
+	        // 第三方用户唯一凭证
+	        //String appId = "000000000000000000";
+	        // 第三方用户唯一凭证密钥
+	        //String appSecret = "00000000000000000000000000000000";
+	        // 调用接口获取access_token
+	        AccessToken at = WeixinUtil.getAccessToken(appId, appSecret);
+	        if (null != at) {
+	            // 调用接口创建菜单
+	            int result = WeixinUtil.createMenu(getMenu(), at.getToken());
+	            // 判断菜单创建结果
+	            if (0 == result){
+	            	log4j.info("菜单创建成功！");
+	            	return true;
+	            }else{
+	            	log4j.info("菜单创建失败，错误码：" + result);
+	            	return false;
+	            }
+	        }else{
+	        	log4j.info("获取AccessToken失败！");
+	        	return false;
+	        }
+	    }
+
+	    /**
+	     * 组装菜单数据
+	     * 
+	     * @return
+	     */
+	    public Menu getMenu() {
+	    	
+	    	ViewButton btn21 = new ViewButton();  
+	        btn21.setName("君墅湾效果图");
+	        btn21.setType("view");
+	        btn21.setUrl("http://wx.yimaisc.com:8042/yimaiwx/Design/index.html");
+
+	        ViewButton btn22 = new ViewButton();
+	        btn22.setName("家装设计师");
+	        btn22.setType("view");
+	        btn22.setUrl("http://wx.yimaisc.com:8042/yimaiwx/Designer/index.html");
+	        
+	        ViewButton btn23 = new ViewButton();
+	        btn23.setName("爱心活动");
+	        btn23.setType("view");
+	        btn23.setUrl("http://wx.yimaisc.com:8042/yimaiwx/Activity/index.html");
+
+	        ViewButton btn31 = new ViewButton();
+	        btn31.setName("预约上门");
+	        btn31.setType("view");
+	        btn31.setUrl("http://r.xiumi.us/stage/v5/2FjrB/43747789");
+
+	        ViewButton btn32 = new ViewButton();
+	        btn32.setName("体验馆");
+	        btn32.setType("view");
+	        btn32.setUrl("http://ditu.amap.com/search?id=B0FFGZ619F&city=441900&geoobj=113.772477%7C23.034469%7C113.781617%7C23.040748&query_type=IDQ&query=易买建材城&zoom=17");
+
+	        /**
+	         * 微信：  mainBtn1,mainBtn2,mainBtn3底部的三个一级菜单。
+	         */
+	        
+	        ViewButton mainBtn1 = new ViewButton();  
+	        mainBtn1.setName("商城");  
+	        mainBtn1.setType("view");  
+	        mainBtn1.setUrl("http://www.yimaisc.com/");
+	        
+	        ComplexButton mainBtn2 = new ComplexButton();
+	        mainBtn2.setName("活动");
+	        mainBtn2.setSub_button(new ViewButton[] { btn21, btn22, btn23 });
+	        
+	        ComplexButton mainBtn3 = new ComplexButton();
+	        mainBtn3.setName("联系我们");
+	        mainBtn3.setSub_button(new ViewButton[] { btn31, btn32 });
+	        
+	        /**
+	         * 封装整个菜单
+	         */
+	        Menu menu = new Menu();
+	        
+	        menu.setButton(new Button[] { mainBtn1, mainBtn2, mainBtn3 });
+
+	        return menu;
+	    }
+	
 }

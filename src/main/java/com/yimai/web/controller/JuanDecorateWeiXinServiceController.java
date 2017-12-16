@@ -13,13 +13,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.alibaba.fastjson.JSONArray;
+import com.yimai.bean.AccessToken;
+import com.yimai.bean.JsonResult;
 import com.yimai.core.util.DecriptUtil;
 import com.yimai.core.util.StringUtil;
+import com.yimai.core.util.WeixinUtil;
 import com.yimai.service.IJuanDecorateWeiXinService;
 import com.yimai.web.base.AbctractBaseController;
 
 /**
- * 微信公共平台-居安整装-用户点击关注事件-后台服务
+ * 微信公共平台-居安整装-后台服务
  * 
  * @author sunfx
  *
@@ -29,7 +32,14 @@ public class JuanDecorateWeiXinServiceController extends AbctractBaseController 
 
 	private Log log4j = LogFactory.getLog(getClass());
 
-	public static String token = "e30b0df0b07e427796c1b7fd93bb46ee";
+	//微信公众号平台上的 token
+	public final static String token = "e30b0df0b07e427796c1b7fd93bb46ee";
+	//微信公众号平台上的 appId
+	public final static String appId = "wx2db855389e66fba4";
+	//微信公众号平台上的 appSecret
+	public final static String appSecret = "661a1abde79e64c5a9181af7a3481313";
+	//微信公众号平台上的 EncodingAESKey
+	public final static String encodingAESKey = "QHjO9SMQtGLZMdRj9jaX7mDWRk2vUxIabKULV95mJMN";
 
 	@Autowired
 	public IJuanDecorateWeiXinService weiXinService;
@@ -71,6 +81,32 @@ public class JuanDecorateWeiXinServiceController extends AbctractBaseController 
 			log4j.error(e.getMessage(), e);
 			this.renderText(response, "");
 		}
+	}
+	
+	/**
+	 * 初始化菜单
+	 * 
+	 * @param signature
+	 */
+	@RequestMapping(value = "/juandecorate-service-initmenu.shtml", method = RequestMethod.GET)
+	public void initMenu(HttpServletRequest request, HttpServletResponse response) {
+		boolean bool = weiXinService.initMenu(appId, appSecret);
+		if(bool){
+			this.renderJson(response, JsonResult.returnSuccess());
+		}else{
+			this.renderJson(response, JsonResult.returnFailure());
+		}
+	}
+	
+	/**
+	 * 初始化菜单
+	 * 
+	 * @param signature
+	 */
+	@RequestMapping(value = "/juandecorate-service-gettoken.shtml", method = RequestMethod.GET)
+	public void gettoken(HttpServletRequest request, HttpServletResponse response) {
+		AccessToken accessToken = WeixinUtil.getAccessToken(appId, appSecret);
+		this.renderJson(response, JsonResult.returnSuccess(accessToken));
 	}
 
 	/**
